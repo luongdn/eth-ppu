@@ -1,6 +1,9 @@
 pragma solidity ^0.5.0;
+import "./Files.sol";
 
 contract PaymentChannel {
+    address public filesContractAddr;
+    string fileHash;
     address payable public sender;
     address payable public recipient;
     uint256 public price;
@@ -9,11 +12,19 @@ contract PaymentChannel {
     uint256 public expiration;
     uint256 amount;
 
-    constructor (address payable _recipient, uint256 _price, uint256 _duration)
+    constructor (
+        address _filesContract,
+        string memory _fileHash,
+        address payable _recipient,
+        uint256 _price,
+        uint256 _duration
+    )
         public
         payable
     {
         require(validAmount(_duration, _price, msg.value), "Invalid amount");
+        filesContractAddr = _filesContract;
+        fileHash = _fileHash;
         sender = msg.sender;
         recipient = _recipient;
         price = _price;
@@ -45,12 +56,16 @@ contract PaymentChannel {
     {
         uint d = calculateDays(start);
         recipient.transfer(price * d);
+        Files filesContract = Files(filesContractAddr);
+        filesContract.removeReader(fileHash, sender);
         selfdestruct(sender);
     }
 
     function claimTimeout() public {
         require(now >= expiration, "Haven't reached the expiration");
         recipient.transfer(price * duration);
+        Files filesContract = Files(filesContractAddr);
+        filesContract.removeReader(fileHash, sender);
         selfdestruct(sender);
     }
 
@@ -66,7 +81,7 @@ contract PaymentChannel {
         return expiration <= now;
     }
 
-    function calculateDays(uint256 _start) internal pure returns (uint) {
+    function calculateDays(uint256 _start) internal view returns (uint) {
         return (now - _start) / 60 / 60 / 24;
     }
 }

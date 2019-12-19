@@ -9,7 +9,8 @@ contract Files {
 
     struct File {
         address owner;
-        Reader[] readers;
+        mapping(address => Reader) readers;
+        uint readersCount;
         string name;
         string description;
         string ipfsHash;
@@ -20,25 +21,23 @@ contract Files {
 
     mapping(string => string) internal accessKeys;
 
+    modifier onlyFileExists(string memory _hash) {
+        require(files[_hash].owner != address(0), "File not exists");
+        _;
+    }
+
     function checkPermissionAndGetKey (string calldata _hash, address _addr)
         external
         view
+        onlyFileExists(_hash)
         returns (bool _hasPermission, string memory _accessKey)
     {
-        File memory file = files[_hash];
-        bool hasPermission = false;
-        for (uint i = 0; i < file.readers.length; i++) {
-            Reader memory reader = file.readers[i];
-            if (reader.addr != _addr) {
-                continue;
-            }
-            PaymentChannel channel = PaymentChannel(reader.paymentContract);
-            hasPermission = channel.isExpired();
+        require(files[_hash].readers[_addr].addr != address(0), "Permission denied");
+        PaymentChannel channel = PaymentChannel(files[_hash].readers[_addr].paymentContract);
+        if (channel.isExpired()) {
+            return (false, "");
         }
-        if (hasPermission) {
-            return (hasPermission, accessKeys[_hash]);
-        }
-        return (hasPermission, "");
+        return (true, accessKeys[_hash]);
     }
 
     function addFile(
@@ -50,15 +49,24 @@ contract Files {
     )
         public
     {
+        require(files[_hash].owner == address(0), "File exists");
         files[_hash] = File({
             owner: _owner,
-            readers: new Reader[](0),
             name: _name,
+            readersCount: 0,
             description: _description,
             ipfsHash: _hash
         });
         accessKeys[_hash] = _accessKey;
         filesCount++;
+    }
+
+    function removeFile(string memory _hash)
+        public
+        onlyFileExists(_hash)
+    {
+        delete files[_hash];
+        filesCount--;
     }
 
     function addReader(
@@ -67,10 +75,23 @@ contract Files {
         address _contract
     )
         public
+        onlyFileExists(_hash)
     {
-        files[_hash].readers.push(Reader({
+        files[_hash].readers[reader] = Reader({
             addr: reader,
             paymentContract: _contract
-        }));
+        });
+        files[_hash].readersCount++;
+    }
+
+    function removeReader(
+        string memory _hash,
+        address reader
+    )
+        public
+        onlyFileExists(_hash)
+    {
+        delete files[_hash].readers[reader];
+        files[_hash].readersCount--;
     }
 }
