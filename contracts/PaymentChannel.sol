@@ -1,4 +1,4 @@
-pragma solidity ^0.5.0;
+pragma solidity >=0.4.22 <0.7.0;
 import "./Files.sol";
 
 contract PaymentChannel {
@@ -10,10 +10,10 @@ contract PaymentChannel {
     uint256 public start;
     uint256 public duration;
     uint256 public expiration;
-    uint256 amount;
+    uint256 public amount;
 
     constructor (
-        address _filesContract,
+        address payable _sender,
         string memory _fileHash,
         address payable _recipient,
         uint256 _price,
@@ -23,9 +23,9 @@ contract PaymentChannel {
         payable
     {
         require(validAmount(_duration, _price, msg.value), "Invalid amount");
-        filesContractAddr = _filesContract;
+        filesContractAddr = msg.sender;
+        sender = _sender;
         fileHash = _fileHash;
-        sender = msg.sender;
         recipient = _recipient;
         price = _price;
         start = now;
@@ -50,9 +50,17 @@ contract PaymentChannel {
         _;
     }
 
+    function getInfo()
+        public
+        view
+        returns (uint256 _price, uint256 _start, uint256 _duration, uint256 _expiration, uint256 _amount)
+    {
+        return (price, start, duration, expiration, amount);
+    }
+
     function close()
         public
-        onlyRecipient
+        onlySender
     {
         uint d = calculateDays(start);
         recipient.transfer(price * d);
@@ -82,6 +90,10 @@ contract PaymentChannel {
     }
 
     function calculateDays(uint256 _start) internal view returns (uint) {
-        return (now - _start) / 60 / 60 / 24;
+        uint d = (now - _start) / 60 / 60 / 24;
+        if (d < 1) {
+            return 1;
+        }
+        return d;
     }
 }
