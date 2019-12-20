@@ -19,7 +19,6 @@ contract Files {
 
     mapping(string => File) public files;
     string[] public filesHash;
-    uint[] public testA;
 
     mapping(string => string) internal accessKeys;
 
@@ -28,7 +27,7 @@ contract Files {
         _;
     }
 
-    function checkPermissionAndGetKey (string calldata _fileHash, address _addr)
+    function checkPermission (string calldata _fileHash, address _addr)
         external
         view
         onlyFileExists(_fileHash)
@@ -101,10 +100,9 @@ contract Files {
 
     function closePaymentChannel(
         string memory _fileHash,
-        address payable _reader
+        address _reader
     )
         public
-        payable
     {
         PaymentChannel channel = PaymentChannel(files[_fileHash].readers[_reader].paymentContract);
         channel.close();

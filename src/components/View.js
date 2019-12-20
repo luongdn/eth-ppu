@@ -20,6 +20,11 @@ const useStyles = makeStyles(theme => ({
     width: '100%',
     marginBottom: theme.spacing(1),
   },
+  wrapper: {
+    marginRight: theme.spacing(2),
+    marginBottom: theme.spacing(1),
+    position: 'relative',
+  },
   buttonSuccess: {
     backgroundColor: green[500],
     '&:hover': {
@@ -51,9 +56,8 @@ const View = ({ account, instance, file }) => {
       0: hasPermission,
       1: accessKey,
     } = await instance.methods
-      .checkPermissionAndGetKey(file.ipfsHash, account)
+      .checkPermission(file.ipfsHash, account)
       .call({ from: account })
-    console.log(hasPermission, accessKey)
 
     if (!hasPermission) {
       setDisplayPayment(true)
@@ -87,6 +91,17 @@ const View = ({ account, instance, file }) => {
       })
   }
 
+  const handleCloseChannel = async () => {
+    setSuccess(false)
+    setLoading(true)
+    await instance.methods
+      .closePaymentChannel(file.ipfsHash, account)
+      .send({ from: account }, () => {
+        setSuccess(true)
+        setLoading(false)
+      })
+  }
+
   return (
     <div>
       <Button
@@ -105,6 +120,29 @@ const View = ({ account, instance, file }) => {
             src={`data:image/png;base64, ${base64Data}`}
           />
         </DialogContent>
+        {account !== file.owner.toLowerCase() && (
+          <DialogActions>
+            <div className={classes.wrapper}>
+              <Button
+                variant="contained"
+                color="primary"
+                disabled={loading}
+                onClick={handleCloseChannel}
+                className={clsx({
+                  [classes.buttonSuccess]: success,
+                })}
+              >
+                Close channel
+              </Button>
+              {loading && (
+                <CircularProgress
+                  size={24}
+                  className={classes.buttonProgress}
+                />
+              )}
+            </div>
+          </DialogActions>
+        )}
       </Dialog>
       <Dialog open={displayPayment} onClose={handleClose}>
         <DialogTitle>Open a payment channel</DialogTitle>

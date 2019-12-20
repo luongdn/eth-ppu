@@ -30,7 +30,7 @@ contract PaymentChannel {
         price = _price;
         start = now;
         duration = _duration;
-        expiration = now + _duration * 1 days;
+        expiration = now + _duration * 1 hours;
         amount = msg.value;
     }
 
@@ -60,10 +60,9 @@ contract PaymentChannel {
 
     function close()
         public
-        onlySender
     {
-        uint d = calculateDays(start);
-        recipient.transfer(price * d);
+        uint h = calculateHours(start);
+        recipient.transfer(price * h);
         Files filesContract = Files(filesContractAddr);
         filesContract.removeReader(fileHash, sender);
         selfdestruct(sender);
@@ -89,11 +88,11 @@ contract PaymentChannel {
         return expiration <= now;
     }
 
-    function calculateDays(uint256 _start) internal view returns (uint) {
-        uint d = (now - _start) / 60 / 60 / 24;
-        if (d < 1) {
+    function calculateHours(uint256 _start) internal view returns (uint) {
+        uint h = (now - _start) / 60 / 60;
+        if (h < 1) {
             return 1;
         }
-        return d;
+        return h;
     }
 }
