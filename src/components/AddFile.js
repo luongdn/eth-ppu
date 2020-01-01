@@ -38,6 +38,9 @@ const useStyles = makeStyles(theme => ({
     marginTop: -12,
     marginLeft: -12,
   },
+  noScroll: {
+    overflow: 'hidden',
+  },
 }))
 
 const AddFile = ({ account, instance }) => {
@@ -52,6 +55,9 @@ const AddFile = ({ account, instance }) => {
 
   const captureFile = files => {
     const file = files[0]
+    if (!file) {
+      return
+    }
     setName(file.name)
     const reader = new window.FileReader()
     reader.readAsArrayBuffer(file)
@@ -65,14 +71,19 @@ const AddFile = ({ account, instance }) => {
     e.preventDefault()
     setSuccess(false)
     setLoading(true)
-    const results = await ipfs.add(buffer)
-    const hash = results[0].hash
-    await instance.methods
-      .addFile(hash, name, description, '123456', price)
-      .send({ from: account }, () => {
-        setSuccess(true)
-        setLoading(false)
-      })
+    try {
+      const results = await ipfs.add(buffer)
+      const hash = results[0].hash
+      await instance.methods
+        .addFile(hash, name, description, '123456', price)
+        .send({ from: account }, () => {
+          setSuccess(true)
+        })
+    } catch (err) {
+      alert(err.message)
+    } finally {
+      setLoading(false)
+    }
   }
 
   const handleClickOpen = () => {
@@ -101,7 +112,7 @@ const AddFile = ({ account, instance }) => {
         <DialogTitle id="form-dialog-title">
           Add a new file
         </DialogTitle>
-        <DialogContent>
+        <DialogContent className={classes.noScroll}>
           <DialogContentText></DialogContentText>
           <DropzoneArea
             filesLimit={1}
@@ -109,7 +120,7 @@ const AddFile = ({ account, instance }) => {
             onChange={captureFile}
           />
         </DialogContent>
-        <DialogContent>
+        <DialogContent className={classes.noScroll}>
           <TextField
             margin="dense"
             label="Name"
