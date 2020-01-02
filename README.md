@@ -12,7 +12,7 @@ The fisrt thing you need to do is create a new workspace in Ganache.
 Open Ganache app and click New Workspace button, add the truffle-config.js file to the Workspace.
 After click Save Workspace you'll be taken to the the screen of the workspace just created
 
-![alt text](https://raw.githubusercontent.com/luongdn/eth-ppu/master/images/ganache-config-workspace.PNG)
+![ganache-config-workspace](https://user-images.githubusercontent.com/40640560/71676796-fc70f800-2d35-11ea-8524-8d136be362d2.png)
 
 
 ### Configure IPFS API CORS headers
@@ -28,14 +28,16 @@ After installing metamask, open it, follow the steps and create an account.
 Click the Main Ethereum Network on top of the window to change the network. We'll be running Ganache on http://127.0.0.1:7545
 so click Custom RPC and fill up:
 
-![alt text](https://raw.githubusercontent.com/luongdn/eth-ppu/master/images/metamask-custom-rpc.PNG)
+![metamask-custom-rpc](https://user-images.githubusercontent.com/40640560/71676869-24f8f200-2d36-11ea-84a5-6dc5125b8475.png)
 
 Next, import a couple of accounts into metamask to test our app.
 Click the button with the key icon, copy the private key and paste it into metamask
 
-![alt text](https://raw.githubusercontent.com/luongdn/eth-ppu/master/images/ganache-private-key.PNG)
+![ganache-private-key](https://user-images.githubusercontent.com/40640560/71676880-2aeed300-2d36-11ea-9037-ad93801a00a2.png)
 
-![alt text](https://raw.githubusercontent.com/luongdn/eth-ppu/master/images/metamask-import-account.PNG)
+Click the import account button to import account from private key
+
+![metamask-import-account](https://user-images.githubusercontent.com/40640560/71676886-2cb89680-2d36-11ea-8d83-78a0e2cc8f26.png)
 
 
 ### Install dependencies
@@ -68,3 +70,5 @@ or with yarn
 ```
 yarn start
 ```
+
+![result](https://user-images.githubusercontent.com/40640560/71676889-2e825a00-2d36-11ea-802d-9bd3989a8b4c.png)
