@@ -30,7 +30,7 @@ so click Custom RPC and fill up:
 
 ![metamask-custom-rpc](https://user-images.githubusercontent.com/40640560/71676869-24f8f200-2d36-11ea-84a5-6dc5125b8475.png)
 
-Next, import a couple of accounts into metamask to test our app.
+Next, import couple of accounts into metamask to test our app.
 Click the button with the key icon, copy the private key and paste it into metamask
 
 ![ganache-private-key](https://user-images.githubusercontent.com/40640560/71676880-2aeed300-2d36-11ea-9037-ad93801a00a2.png)
@@ -42,14 +42,15 @@ Click the import account button to import account from private key
 
 ### Install dependencies
 ```
+# npm
 npm install
 ```
-or if you use yarn
 ```
+# yarn
 yarn install
 ```
 
-### Runnning on local
+### Running on local
 In order to run the app on local, you need to run the 3 commands.
 The command to deploy all the contracts in contracts folder
 ```
@@ -64,10 +65,12 @@ ipfs daemon
 
 And finally, to run the client app with react
 ```
+# npm
 npm run start
 ```
 or with yarn
 ```
+# yarn
 yarn start
 ```
 
